@@ -40,6 +40,17 @@ NJKScrollDirection detectScrollDirection(currentOffsetY, previousOffsetY)
     return self;
 }
 
+- (instancetype)initWithScrollView:(UIScrollView *)scrollView {
+    NSCParameterAssert(scrollView.delegate != nil);
+    if (self = [super init]) {
+        _downThresholdY = 200.0;
+        _upThresholdY = 0.0;
+        _forwardTarget = scrollView.delegate;
+        scrollView.delegate = self;
+    }
+    return self;
+}
+
 - (void)reset
 {
     _previousOffsetY = 0.0;
