@@ -6,6 +6,10 @@
 
 #import "NJKScrollFullScreen.h"
 
+inline BOOL BitTextScrollToHideComponent(ScrollToHideComponent component, ScrollToHideComponent testComponent) {
+  return component & testComponent;
+}
+
 typedef NS_ENUM(NSInteger, NJKScrollDirection) {
     NJKScrollDirectionNone,
     NJKScrollDirectionUp,
@@ -56,6 +60,9 @@ NJKScrollDirection detectScrollDirection(currentOffsetY, previousOffsetY)
     _previousOffsetY = 0.0;
     _accumulatedY = 0.0;
     _previousScrollDirection = NJKScrollDirectionNone;
+    if (self.delegate && [self.delegate respondsToSelector:@selector(scrollFullScreenScrollViewDidReset:)]) {
+      [self.delegate scrollFullScreenScrollViewDidReset:self];
+    }
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
