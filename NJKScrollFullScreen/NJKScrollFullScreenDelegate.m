@@ -29,26 +29,30 @@
 #pragma mark NJKScrollFullScreenDelegate
 
 - (void)scrollFullScreen:(NJKScrollFullScreen *)proxy scrollViewDidScrollUp:(CGFloat)deltaY {
-  if (proxy.hideComponent & ScrollToHideComponentNavigationBar) {
-    [self.viewController moveNavigationBar:deltaY animated:YES];
-  }
-  if (proxy.hideComponent & ScrollToHideComponentTabBar) {
-    [self.viewController moveTabBar:-deltaY animated:YES];
-  }
-  if (proxy.hideComponent & ScrollToHideComponentToolBar) {
-    [self.viewController moveToolbar:-deltaY animated:YES];
+  if (self.userInteractive) {
+    if (proxy.hideComponent & ScrollToHideComponentNavigationBar) {
+      [self.viewController moveNavigationBar:deltaY animated:YES];
+    }
+    if (proxy.hideComponent & ScrollToHideComponentTabBar) {
+      [self.viewController moveTabBar:-deltaY animated:YES];
+    }
+    if (proxy.hideComponent & ScrollToHideComponentToolBar) {
+      [self.viewController moveToolbar:-deltaY animated:YES];
+    }
   }
 }
 
 - (void)scrollFullScreen:(NJKScrollFullScreen *)proxy scrollViewDidScrollDown:(CGFloat)deltaY {
-  if (proxy.hideComponent & ScrollToHideComponentNavigationBar) {
-    [self.viewController moveNavigationBar:deltaY animated:YES];
-  }
-  if (proxy.hideComponent & ScrollToHideComponentTabBar) {
-    [self.viewController moveToolbar:-deltaY animated:YES];
-  }
-  if (proxy.hideComponent & ScrollToHideComponentToolBar) {
-    [self.viewController moveTabBar:-deltaY animated:YES];
+  if (self.userInteractive) {
+    if (proxy.hideComponent & ScrollToHideComponentNavigationBar) {
+      [self.viewController moveNavigationBar:deltaY animated:YES];
+    }
+    if (proxy.hideComponent & ScrollToHideComponentTabBar) {
+      [self.viewController moveToolbar:-deltaY animated:YES];
+    }
+    if (proxy.hideComponent & ScrollToHideComponentToolBar) {
+      [self.viewController moveTabBar:-deltaY animated:YES];
+    }
   }
 }
 
@@ -78,13 +82,13 @@
 
 - (void)scrollFullScreenScrollViewDidReset:(NJKScrollFullScreen *)proxy {
   if (proxy.hideComponent & ScrollToHideComponentNavigationBar) {
-    [self.viewController showNavigationBar:YES];
+    [self.viewController showNavigationBar:NO];
   }
   if (proxy.hideComponent & ScrollToHideComponentTabBar) {
-    [self.viewController showTabBar:YES];
+    [self.viewController showTabBar:NO];
   }
   if (proxy.hideComponent & ScrollToHideComponentToolBar) {
-    [self.viewController showToolbar:YES];
+    [self.viewController showToolbar:NO];
   }
 }
 

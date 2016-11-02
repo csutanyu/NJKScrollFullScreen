@@ -11,6 +11,7 @@
 
 @interface NJKScrollFullScreenDelegate : NSObject <NJKScrollFullscreenDelegate>
 @property (strong, nonatomic) NJKScrollFullScreen *scrollProxy;
+@property (nonatomic) BOOL userInteractive;
 
 - (instancetype)initWithViewController:(UIViewController *)viewController;
 
