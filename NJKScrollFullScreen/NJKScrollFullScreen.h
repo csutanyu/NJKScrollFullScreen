@@ -40,5 +40,11 @@ FOUNDATION_EXTERN inline BOOL BitTextScrollToHideComponent(ScrollToHideComponent
 - (void)scrollFullScreen:(NJKScrollFullScreen *)fullScreenProxy scrollViewDidScrollDown:(CGFloat)deltaY;
 - (void)scrollFullScreenScrollViewDidEndDraggingScrollUp:(NJKScrollFullScreen *)fullScreenProxy;
 - (void)scrollFullScreenScrollViewDidEndDraggingScrollDown:(NJKScrollFullScreen *)fullScreenProxy;
+- (void)scrollFullScreenScrollViewDidEndDraggingScrollNoneDirection:(NJKScrollFullScreen *)proxy;
+
 - (void)scrollFullScreenScrollViewDidReset:(NJKScrollFullScreen *)fullScreenProxy;
+
+- (void)showAll:(NJKScrollFullScreen *)proxy animated:(BOOL)animated;
+- (void)hideAll:(NJKScrollFullScreen *)proxy animated:(BOOL)animated;
+
 @end

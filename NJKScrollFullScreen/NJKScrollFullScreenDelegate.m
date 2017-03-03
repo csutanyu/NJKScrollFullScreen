@@ -17,12 +17,19 @@
 
 @implementation NJKScrollFullScreenDelegate
 
-- (instancetype)initWithViewController:(UIViewController *)viewController {
+- (instancetype)initWithViewController:(UIViewController *)viewController hideStatusBar:(BOOL)hideStatusBar{
   if (self = [super init]) {
-    self.viewController = viewController;
+    _viewController = viewController;
+    _hideStatusBar = hideStatusBar;
+    _viewController.hideStatusBar = _hideStatusBar;
   }
   
   return self;
+}
+
+- (void)setHideStatusBar:(BOOL)hideStatusBar {
+  _hideStatusBar = hideStatusBar;
+  _viewController.hideStatusBar = _hideStatusBar;
 }
 
 #pragma mark -
@@ -57,39 +64,58 @@
 }
 
 - (void)scrollFullScreenScrollViewDidEndDraggingScrollUp:(NJKScrollFullScreen *)proxy {
-  if (proxy.hideComponent & ScrollToHideComponentNavigationBar) {
-    [self.viewController hideNavigationBar:YES];
-  }
-  if (proxy.hideComponent & ScrollToHideComponentTabBar) {
-    [self.viewController hideTabBar:YES];
-  }
-  if (proxy.hideComponent & ScrollToHideComponentToolBar) {
-    [self.viewController hideToolbar:YES];
+  CGRect frame = self.viewController.navigationController.navigationBar.frame;
+  if (frame.origin.y < frame.size.height/2) {
+    [self hideAll:proxy animated:YES];
+  } else {
+    [self showAll:proxy animated:YES];
   }
 }
 
 - (void)scrollFullScreenScrollViewDidEndDraggingScrollDown:(NJKScrollFullScreen *)proxy {
+  CGRect frame = self.viewController.navigationController.navigationBar.frame;
+  if (frame.origin.y < -frame.size.height/2) {
+    [self hideAll:proxy animated:YES];
+  } else {
+    [self showAll:proxy animated:YES];
+  }
+}
+
+- (void)scrollFullScreenScrollViewDidEndDraggingScrollNoneDirection:(NJKScrollFullScreen *)proxy {
+  CGRect frame = self.viewController.navigationController.navigationBar.frame;
+  if (frame.origin.y < -frame.size.height/2) {
+    [self hideAll:proxy animated:YES];
+  } else {
+    [self showAll:proxy animated:YES];
+  }
+}
+
+- (void)showAll:(NJKScrollFullScreen *)proxy animated:(BOOL)animated {
   if (proxy.hideComponent & ScrollToHideComponentNavigationBar) {
-    [self.viewController showNavigationBar:YES];
+    [self.viewController showNavigationBar:animated];
   }
   if (proxy.hideComponent & ScrollToHideComponentTabBar) {
-    [self.viewController showTabBar:YES];
+    [self.viewController showTabBar:animated];
   }
   if (proxy.hideComponent & ScrollToHideComponentToolBar) {
-    [self.viewController showToolbar:YES];
+    [self.viewController showToolbar:animated];
+  }
+}
+
+- (void)hideAll:(NJKScrollFullScreen *)proxy animated:(BOOL)animated {
+  if (proxy.hideComponent & ScrollToHideComponentNavigationBar) {
+    [self.viewController hideNavigationBar:animated];
+  }
+  if (proxy.hideComponent & ScrollToHideComponentTabBar) {
+    [self.viewController hideTabBar:animated];
+  }
+  if (proxy.hideComponent & ScrollToHideComponentToolBar) {
+    [self.viewController hideToolbar:animated];
   }
 }
 
 - (void)scrollFullScreenScrollViewDidReset:(NJKScrollFullScreen *)proxy {
-  if (proxy.hideComponent & ScrollToHideComponentNavigationBar) {
-    [self.viewController showNavigationBar:NO];
-  }
-  if (proxy.hideComponent & ScrollToHideComponentTabBar) {
-    [self.viewController showTabBar:NO];
-  }
-  if (proxy.hideComponent & ScrollToHideComponentToolBar) {
-    [self.viewController showToolbar:NO];
-  }
+  [self showAll:proxy animated:NO];
 }
 
 @end

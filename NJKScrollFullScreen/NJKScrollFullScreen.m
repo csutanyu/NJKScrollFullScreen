@@ -70,7 +70,13 @@ NJKScrollDirection detectScrollDirection(currentOffsetY, previousOffsetY)
     if ([_forwardTarget respondsToSelector:@selector(scrollViewDidScroll:)]) {
         [_forwardTarget scrollViewDidScroll:scrollView];
     }
-
+    if (scrollView.contentSize.height + scrollView.contentInset.top + scrollView.contentInset.bottom < scrollView.frame.size.height + scrollView.contentInset.top + 20) { // 内容太小不足以在往下滑动的过程中将导航全部隐藏
+        return;
+    }
+    if (scrollView.contentOffset.y - (-scrollView.contentInset.top) + scrollView.frame.size.height >= scrollView.contentSize.height + scrollView.contentInset.top + scrollView.contentInset.bottom) { // 向下滑动超过内容加inset则忽略
+        return;
+    }
+    
     CGFloat currentOffsetY = scrollView.contentOffset.y;
 
     NJKScrollDirection currentScrollDirection = detectScrollDirection(currentOffsetY, _previousOffsetY);
@@ -135,13 +141,23 @@ NJKScrollDirection detectScrollDirection(currentOffsetY, previousOffsetY)
     CGFloat topBoundary = -scrollView.contentInset.top;
     CGFloat bottomBoundary = scrollView.contentSize.height + scrollView.contentInset.bottom;
 
+    if (!decelerate && scrollView.contentOffset.y < 0) {
+        if ([_delegate respondsToSelector:@selector(showAll:animated:)]) {
+            _previousOffsetY = 0.0;
+            _accumulatedY = 0.0;
+            _previousScrollDirection = NJKScrollDirectionNone;
+            [_delegate showAll:self animated:YES];
+            return;
+        }
+    }
+    
     switch (_previousScrollDirection) {
         case NJKScrollDirectionUp:
         {
             BOOL isOverThreshold = _accumulatedY < -_upThresholdY;
             BOOL isOverBottomBoundary = currentOffsetY >= bottomBoundary;
 
-            if (isOverThreshold || isOverBottomBoundary) {
+            if (!decelerate || isOverThreshold || isOverBottomBoundary) {
                 if ([_delegate respondsToSelector:@selector(scrollFullScreenScrollViewDidEndDraggingScrollUp:)]) {
                     [_delegate scrollFullScreenScrollViewDidEndDraggingScrollUp:self];
                 }
@@ -150,10 +166,11 @@ NJKScrollDirection detectScrollDirection(currentOffsetY, previousOffsetY)
         }
         case NJKScrollDirectionDown:
         {
+            
             BOOL isOverThreshold = _accumulatedY > _downThresholdY;
             BOOL isOverTopBoundary = currentOffsetY <= topBoundary;
 
-            if (isOverThreshold || isOverTopBoundary) {
+            if (!decelerate || isOverThreshold || isOverTopBoundary) {
                 if ([_delegate respondsToSelector:@selector(scrollFullScreenScrollViewDidEndDraggingScrollDown:)]) {
                     [_delegate scrollFullScreenScrollViewDidEndDraggingScrollDown:self];
                 }
@@ -161,6 +178,50 @@ NJKScrollDirection detectScrollDirection(currentOffsetY, previousOffsetY)
             break;
         }
         case NJKScrollDirectionNone:
+        {
+            if ([_delegate respondsToSelector:@selector(scrollFullScreenScrollViewDidEndDraggingScrollNoneDirection:)]) {
+                [_delegate scrollFullScreenScrollViewDidEndDraggingScrollNoneDirection:self];
+            }
+        }
+            break;
+    }
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    if ([_forwardTarget respondsToSelector:@selector(scrollViewDidEndDecelerating:)]) {
+        [_forwardTarget scrollViewDidEndDecelerating:scrollView];
+    }
+    
+    if (scrollView.contentOffset.y < 0) {
+        if ([_delegate respondsToSelector:@selector(showAll:animated:)]) {
+            _previousOffsetY = 0.0;
+            _accumulatedY = 0.0;
+            _previousScrollDirection = NJKScrollDirectionNone;
+            [_delegate showAll:self animated:YES];
+            return;
+        }
+    }
+    switch (_previousScrollDirection) {
+        case NJKScrollDirectionUp:
+        {
+            if ([_delegate respondsToSelector:@selector(scrollFullScreenScrollViewDidEndDraggingScrollUp:)]) {
+                [_delegate scrollFullScreenScrollViewDidEndDraggingScrollUp:self];
+            }
+            break;
+        }
+        case NJKScrollDirectionDown:
+        {
+            if ([_delegate respondsToSelector:@selector(scrollFullScreenScrollViewDidEndDraggingScrollDown:)]) {
+                [_delegate scrollFullScreenScrollViewDidEndDraggingScrollDown:self];
+            }
+            break;
+        }
+        case NJKScrollDirectionNone:
+        {
+            if ([_delegate respondsToSelector:@selector(scrollFullScreenScrollViewDidEndDraggingScrollNoneDirection:)]) {
+                [_delegate scrollFullScreenScrollViewDidEndDraggingScrollNoneDirection:self];
+            }
+        }
             break;
     }
 }

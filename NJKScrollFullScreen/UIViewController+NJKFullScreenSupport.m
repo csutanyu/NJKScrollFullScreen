@@ -17,10 +17,20 @@
 #endif
 
 #import "UIViewController+NJKFullScreenSupport.h"
+#import <objc/runtime.h>
 
 #define kNearZero 0.000001f
 
 @implementation UIViewController (NJKFullScreenSupport)
+
+static void *const HideStatusBarContext = &HideStatusBarContext;
+- (BOOL)hideStatusBar {
+  return [objc_getAssociatedObject(self, HideStatusBarContext) boolValue];
+}
+
+- (void)setHideStatusBar:(BOOL)hideStatusBar {
+  objc_setAssociatedObject(self, HideStatusBarContext, @(hideStatusBar), OBJC_ASSOCIATION_RETAIN);
+}
 
 - (void)showNavigationBar:(BOOL)animated
 {
@@ -38,15 +48,18 @@
 - (void)hideNavigationBar:(BOOL)animated
 {
     CGFloat statusBarHeight = [self statusBarHeight];
-
     UIWindow *appKeyWindow = [UIApplication sharedApplication].keyWindow;
     UIView *appBaseView = appKeyWindow.rootViewController.view;
     CGRect viewControllerFrame =  [appBaseView convertRect:appBaseView.bounds toView:appKeyWindow];
-
     CGFloat overwrapStatusBarHeight = statusBarHeight - viewControllerFrame.origin.y;
-
+    if (self.hideStatusBar) {
+        overwrapStatusBarHeight -= statusBarHeight;
+    }
     CGFloat navigationBarHeight = self.navigationController.navigationBar.frame.size.height;
     CGFloat top = NJK_IS_RUNNING_IOS7 ? -navigationBarHeight + overwrapStatusBarHeight : -navigationBarHeight;
+    if (self.hideStatusBar) { // 防止隐藏导航条后在屏幕最上面显示一个白边
+        top -= 2;
+    }
 
     [self setNavigationBarOriginY:top animated:animated];
 }
@@ -61,19 +74,23 @@
 - (void)setNavigationBarOriginY:(CGFloat)y animated:(BOOL)animated
 {
     CGFloat statusBarHeight = [self statusBarHeight];
-
     UIWindow *appKeyWindow = [UIApplication sharedApplication].keyWindow;
     UIView *appBaseView = appKeyWindow.rootViewController.view;
     CGRect viewControllerFrame =  [appBaseView convertRect:appBaseView.bounds toView:appKeyWindow];
 
     CGFloat overwrapStatusBarHeight = statusBarHeight - viewControllerFrame.origin.y;
-
+    if (self.hideStatusBar) {
+        overwrapStatusBarHeight -= statusBarHeight;
+    }
     CGRect frame = self.navigationController.navigationBar.frame;
     CGFloat navigationBarHeight = frame.size.height;
 
     CGFloat topLimit = NJK_IS_RUNNING_IOS7 ? -navigationBarHeight + overwrapStatusBarHeight : -navigationBarHeight;
     CGFloat bottomLimit = overwrapStatusBarHeight;
-
+    if (self.hideStatusBar) {
+        bottomLimit = [self statusBarHeight] - viewControllerFrame.origin.y;
+        topLimit -= 2;
+    }
     frame.origin.y = fmin(fmax(y, topLimit), bottomLimit);
 
     CGFloat navBarHiddenRatio = overwrapStatusBarHeight > 0 ? (overwrapStatusBarHeight - frame.origin.y) / overwrapStatusBarHeight : 0;

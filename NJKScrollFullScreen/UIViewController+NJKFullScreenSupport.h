@@ -7,6 +7,7 @@
 #import <UIKit/UIKit.h>
 
 @interface UIViewController (NJKFullScreenSupport)
+@property (nonatomic) BOOL hideStatusBar; // when hide the navigation bar, if hide the status bar. default NO.
 
 - (void)showNavigationBar:(BOOL)animated;
 - (void)hideNavigationBar:(BOOL)animated;
