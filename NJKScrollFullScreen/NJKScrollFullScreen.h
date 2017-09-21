@@ -8,10 +8,10 @@
 #import <libkern/OSAtomic.h>
 
 typedef NS_ENUM(NSInteger, ScrollToHideComponent) {
-  ScrollToHideComponentNavigationBar = 1 << 0,
-  ScrollToHideComponentTabBar = 1 << 2,
-  ScrollToHideComponentToolBar = 1 << 3,
-  ScrollToHideComponentAll = ScrollToHideComponentNavigationBar | ScrollToHideComponentTabBar | ScrollToHideComponentToolBar
+    ScrollToHideComponentNavigationBar = 1 << 0,
+    ScrollToHideComponentTabBar = 1 << 2,
+    ScrollToHideComponentToolBar = 1 << 3,
+    ScrollToHideComponentAll = ScrollToHideComponentNavigationBar | ScrollToHideComponentTabBar | ScrollToHideComponentToolBar
 };
 
 FOUNDATION_EXTERN inline BOOL BitTextScrollToHideComponent(ScrollToHideComponent component, ScrollToHideComponent testComponent);
@@ -20,6 +20,7 @@ FOUNDATION_EXTERN inline BOOL BitTextScrollToHideComponent(ScrollToHideComponent
 
 @interface NJKScrollFullScreen : NSObject<UIScrollViewDelegate, UITableViewDelegate, UIWebViewDelegate>
 
+@property (nonatomic) BOOL enable; // Default YES
 @property (nonatomic, weak) id<NJKScrollFullscreenDelegate> delegate;
 
 @property (nonatomic) CGFloat upThresholdY; // up distance until fire. default 0 px.
@@ -48,3 +49,4 @@ FOUNDATION_EXTERN inline BOOL BitTextScrollToHideComponent(ScrollToHideComponent
 - (void)hideAll:(NJKScrollFullScreen *)proxy animated:(BOOL)animated;
 
 @end
+
